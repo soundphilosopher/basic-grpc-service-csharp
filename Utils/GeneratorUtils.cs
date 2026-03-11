@@ -1,5 +1,6 @@
 using BasicGrpcService.Basic.Service.V1;
 using BasicGrpcService.CloudEvents.V1;
+using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 
@@ -45,6 +46,12 @@ public sealed partial class GeneratorUtils
     ///     <term><c>data</c></term>
     ///     <description>The <paramref name="protoData"/> payload passed by the caller.</description>
     ///   </item>
+    ///   <item>
+    ///     <term><c>time</c></term>
+    ///     <description>
+    ///       Set to the current UTC time, using the <c>ce_timestamp</c> attribute format.
+    ///     </description>
+    ///   </item>
     /// </list>
     /// </remarks>
     /// <param name="context">
@@ -58,7 +65,7 @@ public sealed partial class GeneratorUtils
     /// <returns>A fully populated <see cref="CloudEvent"/> ready to be set on a response message.</returns>
     public static CloudEvent CreateCloudEvent(ServerCallContext context, Any protoData)
     {
-        return new CloudEvent
+        var cloudEvent = new CloudEvent
         {
             Id = Guid.NewGuid().ToString(),
             SpecVersion = "1.0",
@@ -66,7 +73,10 @@ public sealed partial class GeneratorUtils
             Source = context.Method,
             ProtoData = protoData,
         };
+        cloudEvent.Attributes["time"] = new CloudEvent.Types.CloudEventAttributeValue { CeTimestamp = Timestamp.FromDateTime(DateTime.UtcNow) };
+        return cloudEvent;
     }
+
 
     /// <summary>
     /// Simulates an asynchronous call to an external service by waiting for a random
