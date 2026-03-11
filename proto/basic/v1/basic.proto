@@ -1,0 +1,25 @@
+// BasicService gRPC API Definition
+//
+// This file defines the main gRPC service interface for the Basic Service,
+// providing simple greeting, conversational, and background processing capabilities.
+
+syntax = "proto3";
+
+package basic.v1;
+
+import "basic/service/v1/service.proto";
+
+option csharp_namespace = "BasicGrpcService.Basic.V1";
+
+// BasicService provides core functionality including greetings, chat, and background processing.
+service BasicService {
+  // Hello returns a personalized greeting wrapped in a Cloud Event.
+  rpc Hello(basic.service.v1.HelloRequest) returns (basic.service.v1.HelloResponse) {}
+
+  // Talk provides a bidirectional streaming chat interface using an ELIZA-like bot.
+  rpc Talk(stream basic.service.v1.TalkRequest) returns (stream basic.service.v1.TalkResponse) {}
+
+  // Background starts a long-running operation and streams periodic status updates.
+  // Uses fan-out/fan-in pattern to call multiple external services concurrently.
+  rpc Background(basic.service.v1.BackgroundRequest) returns (stream basic.service.v1.BackgroundResponse) {}
+}

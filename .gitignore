@@ -1,0 +1,7 @@
+# csharp
+bin
+obj
+
+# certs
+certs/*
+!certs/.gitkeep

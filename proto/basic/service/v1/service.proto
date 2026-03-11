@@ -1,0 +1,84 @@
+// Basic Service Protocol Definitions
+//
+// This file defines the core data structures and enums used by the BasicService.
+// It includes state management, request/response messages, and Cloud Events integration.
+
+syntax = "proto3";
+
+package basic.service.v1;
+
+import "google/protobuf/timestamp.proto";
+import "io/cloudevents/v1/cloudevents.proto";
+
+option csharp_namespace = "BasicGrpcService.Basic.Service.V1";
+
+// State represents the lifecycle state of background operations.
+enum State {
+  STATE_UNSPECIFIED = 0; // Default unspecified state
+  STATE_PROCESS = 1; // Operation is currently processing
+  STATE_COMPLETE = 2; // Operation completed successfully
+  STATE_ERROR = 3; // Operation failed with error
+  STATE_COMPLETE_WITH_ERROR = 4; // Operation completed but with some errors
+}
+
+// SomeServiceData contains the payload data from external service calls.
+message SomeServiceData {
+  string value = 1; // The actual data value returned by the service
+  string type = 2; // The type of service that provided this data (rest, rpc, grpc)
+}
+
+// SomeServiceResponse represents a response from an external service call.
+message SomeServiceResponse {
+  string id = 1; // Unique identifier for this response
+  string name = 2; // Name of the service that provided the response
+  string version = 3; // Version of the service
+  SomeServiceData data = 4; // The actual response data
+}
+
+// SomeServiceResponses is a collection of service responses.
+message SomeServiceResponses {
+  repeated SomeServiceResponse responses = 1; // List of individual service responses
+}
+
+// HelloRequest contains the greeting message to be processed.
+message HelloRequest {
+  string message = 1; // The message to include in the greeting
+}
+
+// HelloResponse wraps the greeting response in a Cloud Event.
+message HelloResponse {
+  io.cloudevents.v1.CloudEvent cloud_event = 1; // Cloud Event containing the greeting
+}
+
+// HelloResponseEvent is the actual event data for hello responses.
+message HelloResponseEvent {
+  string greeting = 1; // The formatted greeting message
+}
+
+// TalkRequest contains a message for the conversational interface.
+message TalkRequest {
+  string message = 1; // User input message for the chat bot
+}
+
+// TalkResponse contains the chat bot's reply.
+message TalkResponse {
+  string answer = 1; // The chat bot's response to the user input
+}
+
+// BackgroundRequest initiates a background processing operation.
+message BackgroundRequest {
+  int64 processes = 1; // Number of processes to execute (currently unused)
+}
+
+// BackgroundResponse provides status updates for background operations.
+message BackgroundResponse {
+  io.cloudevents.v1.CloudEvent cloud_event = 1; // Cloud Event containing the status update
+}
+
+// BackgroundResponseEvent contains the actual status data for background operations.
+message BackgroundResponseEvent {
+  State state = 1; // Current state of the operation
+  google.protobuf.Timestamp started_at = 2; // When the operation started
+  google.protobuf.Timestamp completed_at = 3; // When the operation completed (if finished)
+  repeated SomeServiceResponse responses = 4; // Collected responses from external services
+}
