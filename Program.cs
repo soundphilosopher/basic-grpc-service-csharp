@@ -1,3 +1,4 @@
+using System.Net.Quic;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Services;
 
@@ -22,6 +23,14 @@ builder.Services
     .AddCheck("self", () => HealthCheckResult.Healthy(), tags: ["basic"]);
 
 var app = builder.Build();
+
+// Diagnose QUIC/HTTP3 support early — Kestrel silently skips HTTP/3
+// if QUIC is unavailable, with no warning logged at default log levels.
+if (app.Logger.IsEnabled(LogLevel.Information))
+{
+    app.Logger.LogInformation("QUIC (HTTP/3) supported on this system: {Supported}", QuicListener.IsSupported);
+}
+
 
 app.MapGrpcService<BasicService>();
 
